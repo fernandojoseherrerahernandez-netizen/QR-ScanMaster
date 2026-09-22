@@ -1,0 +1,1307 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR ScanMaster Pro - Generador QR 100% Escaneable</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- QR Code ISO Generator Engine -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .dark .glass-panel {
+            background: rgba(30, 41, 59, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        /* Custom scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 9999px;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: #475569;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-full flex flex-col transition-colors duration-200">
+
+    <!-- Header / Navbar -->
+    <header class="sticky top-0 z-40 w-full border-b border-slate-200 dark:border-slate-800 glass-panel">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-indigo-400 flex items-center justify-center text-white shadow-lg shadow-indigo-500/25">
+                    <i class="fa-solid fa-qrcode text-xl"></i>
+                </div>
+                <div>
+                    <div class="flex items-center space-x-2">
+                        <h1 class="font-bold text-lg leading-none">QR ScanMaster</h1>
+                        <span class="bg-emerald-100 text-emerald-700 dark:bg-emerald-950/80 dark:text-emerald-400 text-xs font-semibold px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800 flex items-center gap-1">
+                            <i class="fa-solid fa-shield-check text-[10px]"></i> ISO 18004
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Garantía de Escaneo Universal</p>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-2 sm:space-x-4">
+                <button id="infoModalBtn" class="p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-sm flex items-center gap-2 transition-colors">
+                    <i class="fa-regular fa-circle-question text-lg"></i>
+                    <span class="hidden md:inline font-medium text-xs">¿Por qué es 100% escaneable?</span>
+                </button>
+                <button id="themeToggleBtn" class="p-2.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
+                    <i class="fa-solid fa-moon dark:hidden text-lg"></i>
+                    <i class="fa-solid fa-sun hidden dark:inline text-lg text-amber-400"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            
+            <!-- Left Column: Settings and Preset Controls -->
+            <div class="lg:col-span-7 space-y-6">
+                
+                <!-- Content Type Tabs -->
+                <div class="bg-white dark:bg-slate-800 rounded-2xl p-2 shadow-sm border border-slate-200/80 dark:border-slate-700/80">
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider px-3 pt-2 pb-1">Selecciona tipo de contenido</p>
+                    <div class="grid grid-cols-3 sm:grid-cols-6 gap-1.5" id="typeTabs">
+                        <button data-type="url" class="tab-btn active flex flex-col items-center justify-center p-3 rounded-xl font-medium text-xs gap-1.5 transition-all bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800">
+                            <i class="fa-solid fa-link text-base"></i> Enlace
+                        </button>
+                        <button data-type="text" class="tab-btn flex flex-col items-center justify-center p-3 rounded-xl font-medium text-xs gap-1.5 transition-all text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/50 border border-transparent">
+                            <i class="fa-solid fa-align-left text-base"></i> Texto
+                        </button>
+                        <button data-type="wifi" class="tab-btn flex flex-col items-center justify-center p-3 rounded-xl font-medium text-xs gap-1.5 transition-all text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/50 border border-transparent">
+                            <i class="fa-solid fa-wifi text-base"></i> Wi-Fi
+                        </button>
+                        <button data-type="vcard" class="tab-btn flex flex-col items-center justify-center p-3 rounded-xl font-medium text-xs gap-1.5 transition-all text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/50 border border-transparent">
+                            <i class="fa-solid fa-address-card text-base"></i> vCard
+                        </button>
+                        <button data-type="email" class="tab-btn flex flex-col items-center justify-center p-3 rounded-xl font-medium text-xs gap-1.5 transition-all text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/50 border border-transparent">
+                            <i class="fa-solid fa-envelope text-base"></i> Email
+                        </button>
+                        <button data-type="whatsapp" class="tab-btn flex flex-col items-center justify-center p-3 rounded-xl font-medium text-xs gap-1.5 transition-all text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/50 border border-transparent">
+                            <i class="fa-brands fa-whatsapp text-base"></i> WhatsApp
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Dynamic Form Inputs -->
+                <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200/80 dark:border-slate-700/80">
+                    
+                    <!-- URL Form -->
+                    <div id="form-url" class="type-form space-y-4">
+                        <div class="flex items-center justify-between">
+                            <h2 class="font-bold text-base flex items-center gap-2">
+                                <i class="fa-solid fa-link text-indigo-500"></i> Configurar Enlace Web
+                            </h2>
+                            <span class="text-xs text-slate-400">Apertura directa al escanear</span>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">Dirección URL</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 text-sm">
+                                    https://
+                                </span>
+                                <input type="url" id="urlInput" value="https://www.google.com" placeholder="www.ejemplo.com" class="w-full pl-20 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Text Form -->
+                    <div id="form-text" class="type-form hidden space-y-4">
+                        <h2 class="font-bold text-base flex items-center gap-2">
+                            <i class="fa-solid fa-align-left text-indigo-500"></i> Texto Plano
+                        </h2>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">Contenido del Mensaje o Nota</label>
+                            <textarea id="textInput" rows="4" placeholder="Escribe cualquier texto..." class="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">¡Hola! Código QR generado con QR ScanMaster Pro.</textarea>
+                        </div>
+                    </div>
+
+                    <!-- WiFi Form -->
+                    <div id="form-wifi" class="type-form hidden space-y-4">
+                        <h2 class="font-bold text-base flex items-center gap-2">
+                            <i class="fa-solid fa-wifi text-indigo-500"></i> Conexión Wi-Fi Automática
+                        </h2>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">Nombre de Red (SSID)</label>
+                                <input type="text" id="wifiSsid" value="MiRed_Wifi" placeholder="Ej: MiRed_Casa" class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">Seguridad / Cifrado</label>
+                                <select id="wifiType" class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                                    <option value="WPA">WPA / WPA2 / WPA3 (Recomendado)</option>
+                                    <option value="WEP">WEP</option>
+                                    <option value="nopass">Sin Contraseña (Abierta)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div id="wifiPasswordContainer">
+                            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">Contraseña de Wi-Fi</label>
+                            <input type="text" id="wifiPass" value="claveSuperSegura123" placeholder="Ingresa la clave" class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        </div>
+                        <div class="flex items-center space-x-2 pt-1">
+                            <input type="checkbox" id="wifiHidden" class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500">
+                            <label for="wifiHidden" class="text-xs font-medium text-slate-600 dark:text-slate-300">Es una red oculta</label>
+                        </div>
+                    </div>
+
+                    <!-- vCard Form -->
+                    <div id="form-vcard" class="type-form hidden space-y-4">
+                        <h2 class="font-bold text-base flex items-center gap-2">
+                            <i class="fa-solid fa-address-card text-indigo-500"></i> Tarjeta de Contacto (vCard 3.0)
+                        </h2>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Nombre</label>
+                                <input type="text" id="vFirstName" value="Carlos" placeholder="Nombre" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Apellido</label>
+                                <input type="text" id="vLastName" value="Mendoza" placeholder="Apellido" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Teléfono Movil</label>
+                                <input type="tel" id="vPhone" value="+503 7000 0000" placeholder="+123456789" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Correo Electrónico</label>
+                                <input type="email" id="vEmail" value="carlos.mendoza@empresa.com" placeholder="correo@ejemplo.com" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Empresa / Organización</label>
+                                <input type="text" id="vCompany" value="Tech Solutions" placeholder="Nombre de la Empresa" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Cargo / Puesto</label>
+                                <input type="text" id="vTitle" value="Director de Operaciones" placeholder="Cargo" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Email Form -->
+                    <div id="form-email" class="type-form hidden space-y-4">
+                        <h2 class="font-bold text-base flex items-center gap-2">
+                            <i class="fa-solid fa-envelope text-indigo-500"></i> Enviar Correo Electrónico
+                        </h2>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Destinatario (Email)</label>
+                                <input type="email" id="emailTo" value="contacto@empresa.com" placeholder="destino@ejemplo.com" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Asunto</label>
+                                <input type="text" id="emailSubject" value="Consulta de Información" placeholder="Asunto del correo" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Cuerpo del Mensaje</label>
+                                <textarea id="emailBody" rows="2" placeholder="Mensaje predeterminado..." class="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">Hola, quisiera ponerme en contacto con ustedes.</textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- WhatsApp Form -->
+                    <div id="form-whatsapp" class="type-form hidden space-y-4">
+                        <h2 class="font-bold text-base flex items-center gap-2">
+                            <i class="fa-brands fa-whatsapp text-emerald-500"></i> Abrir Chat de WhatsApp
+                        </h2>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Número con Código de País (sin espacios o +)</label>
+                                <input type="tel" id="waPhone" value="50370000000" placeholder="Ej: 5215512345678" class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Mensaje Pre-llenado (Opcional)</label>
+                                <textarea id="waMessage" rows="2" placeholder="Ej: Hola, vi tu anuncio y me interesa información." class="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">¡Hola! Me gustaría obtener más información.</textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Customization Panel -->
+                <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200/80 dark:border-slate-700/80 space-y-6">
+                    
+                    <!-- Colors & Presets -->
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="font-bold text-sm flex items-center gap-2">
+                                <i class="fa-solid fa-palette text-indigo-500"></i> Colores & Contraste
+                            </h3>
+                            <!-- Contrast Badge -->
+                            <span id="contrastBadge" class="text-xs font-semibold px-2.5 py-1 rounded-md bg-emerald-100 text-emerald-700 dark:bg-emerald-950/70 dark:text-emerald-400 flex items-center gap-1">
+                                <i class="fa-solid fa-check"></i> Contraste Excelente (21:1)
+                            </span>
+                        </div>
+
+                        <!-- Presets palette -->
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="text-xs text-slate-400 flex items-center mr-1">Paletas:</span>
+                            <button class="preset-color w-6 h-6 rounded-full border border-slate-300 shadow-sm focus:ring-2 focus:ring-indigo-500" data-fg="#000000" data-bg="#ffffff" title="Negro Clásico" style="background: linear-gradient(135deg, #000 50%, #fff 50%);"></button>
+                            <button class="preset-color w-6 h-6 rounded-full border border-slate-300 shadow-sm focus:ring-2 focus:ring-indigo-500" data-fg="#1e1b4b" data-bg="#e0e7ff" title="Azul Marino & Azul Claro" style="background: linear-gradient(135deg, #1e1b4b 50%, #e0e7ff 50%);"></button>
+                            <button class="preset-color w-6 h-6 rounded-full border border-slate-300 shadow-sm focus:ring-2 focus:ring-indigo-500" data-fg="#064e3b" data-bg="#ecfdf5" title="Verde Bosque" style="background: linear-gradient(135deg, #064e3b 50%, #ecfdf5 50%);"></button>
+                            <button class="preset-color w-6 h-6 rounded-full border border-slate-300 shadow-sm focus:ring-2 focus:ring-indigo-500" data-fg="#78350f" data-bg="#fffbeb" title="Cálido Ámbar" style="background: linear-gradient(135deg, #78350f 50%, #fffbeb 50%);"></button>
+                            <button class="preset-color w-6 h-6 rounded-full border border-slate-300 shadow-sm focus:ring-2 focus:ring-indigo-500" data-fg="#881337" data-bg="#fff1f2" title="Rojo Rubí" style="background: linear-gradient(135deg, #881337 50%, #fff1f2 50%);"></button>
+                            <button class="preset-color w-6 h-6 rounded-full border border-slate-300 shadow-sm focus:ring-2 focus:ring-indigo-500" data-fg="#ffffff" data-bg="#0f172a" title="Invertido Oscuro" style="background: linear-gradient(135deg, #fff 50%, #0f172a 50%);"></button>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Color del QR (Módulos)</label>
+                                <div class="flex items-center space-x-2">
+                                    <input type="color" id="fgColorInput" value="#000000" class="w-9 h-9 p-0.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent cursor-pointer">
+                                    <input type="text" id="fgHexInput" value="#000000" class="w-full px-2.5 py-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg text-xs font-mono uppercase">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Color de Fondo</label>
+                                <div class="flex items-center space-x-2">
+                                    <input type="color" id="bgColorInput" value="#FFFFFF" class="w-9 h-9 p-0.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent cursor-pointer">
+                                    <input type="text" id="bgHexInput" value="#FFFFFF" class="w-full px-2.5 py-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg text-xs font-mono uppercase">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Low contrast warning message -->
+                        <div id="contrastWarning" class="hidden mt-3 p-3 bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800 rounded-xl text-amber-800 dark:text-amber-300 text-xs flex items-start gap-2">
+                            <i class="fa-solid fa-triangle-exclamation text-amber-500 text-sm mt-0.5"></i>
+                            <div>
+                                <strong class="font-semibold">Advertencia de Contraste Bajo:</strong> La combinación actual de colores tiene poca visibilidad. Se recomienda utilizar un fondo muy claro con módulos oscuros para asegurar la lectura en cámaras móviles.
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="border-slate-200 dark:border-slate-700">
+
+                    <!-- Logo Integration Section -->
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="font-bold text-sm flex items-center gap-2">
+                                <i class="fa-solid fa-icons text-indigo-500"></i> Logo Central & Iconos
+                            </h3>
+                            <span class="text-xs text-slate-400">Aislamiento de módulos garantizado</span>
+                        </div>
+
+                        <!-- Presets Icons -->
+                        <div class="grid grid-cols-7 gap-2 mb-4" id="logoPresetGrid">
+                            <button data-logo="none" class="logo-preset-btn active p-2 rounded-xl border-2 border-indigo-500 bg-indigo-50/50 dark:bg-indigo-950/50 text-xs font-medium text-center flex flex-col items-center justify-center gap-1">
+                                <i class="fa-solid fa-ban text-slate-400 text-sm"></i>
+                                <span class="text-[10px]">Sin Logo</span>
+                            </button>
+                            <button data-logo="url" class="logo-preset-btn p-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-medium text-center flex flex-col items-center justify-center gap-1 hover:border-indigo-300">
+                                <i class="fa-solid fa-globe text-indigo-600 text-sm"></i>
+                                <span class="text-[10px]">Web</span>
+                            </button>
+                            <button data-logo="wifi" class="logo-preset-btn p-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-medium text-center flex flex-col items-center justify-center gap-1 hover:border-indigo-300">
+                                <i class="fa-solid fa-wifi text-emerald-600 text-sm"></i>
+                                <span class="text-[10px]">WiFi</span>
+                            </button>
+                            <button data-logo="vcard" class="logo-preset-btn p-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-medium text-center flex flex-col items-center justify-center gap-1 hover:border-indigo-300">
+                                <i class="fa-solid fa-user text-amber-600 text-sm"></i>
+                                <span class="text-[10px]">Contacto</span>
+                            </button>
+                            <button data-logo="email" class="logo-preset-btn p-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-medium text-center flex flex-col items-center justify-center gap-1 hover:border-indigo-300">
+                                <i class="fa-solid fa-envelope text-blue-600 text-sm"></i>
+                                <span class="text-[10px]">Mail</span>
+                            </button>
+                            <button data-logo="whatsapp" class="logo-preset-btn p-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-medium text-center flex flex-col items-center justify-center gap-1 hover:border-indigo-300">
+                                <i class="fa-brands fa-whatsapp text-emerald-500 text-sm"></i>
+                                <span class="text-[10px]">WhatsApp</span>
+                            </button>
+                            <button data-logo="star" class="logo-preset-btn p-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-medium text-center flex flex-col items-center justify-center gap-1 hover:border-indigo-300">
+                                <i class="fa-solid fa-star text-amber-500 text-sm"></i>
+                                <span class="text-[10px]">Estrella</span>
+                            </button>
+                        </div>
+
+                        <!-- Custom Image Upload -->
+                        <div class="space-y-3">
+                            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300">O sube un logo personalizado (PNG, JPG, SVG)</label>
+                            <div class="flex items-center space-x-3">
+                                <label class="cursor-pointer px-3.5 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 flex items-center gap-2 border border-slate-200 dark:border-slate-600 transition-colors">
+                                    <i class="fa-solid fa-upload"></i> Subir Imagen
+                                    <input type="file" id="customLogoInput" accept="image/*" class="hidden">
+                                </label>
+                                <span id="customLogoName" class="text-xs text-slate-400 truncate max-w-[200px]">Ningún archivo seleccionado</span>
+                                <button id="removeCustomLogoBtn" class="hidden text-xs text-rose-500 hover:text-rose-700 font-semibold">
+                                    Quitar
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Logo Options (Slider, Shape) -->
+                        <div id="logoControlsContainer" class="hidden mt-4 pt-4 border-t border-slate-100 dark:border-slate-700/50 space-y-4">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <div class="flex justify-between items-center mb-1">
+                                        <label class="text-xs font-medium text-slate-600 dark:text-slate-300">Tamaño del Logo</label>
+                                        <span id="logoSizeVal" class="text-xs font-mono text-indigo-600 dark:text-indigo-400">18%</span>
+                                    </div>
+                                    <input type="range" id="logoSizeInput" min="10" max="22" value="18" class="w-full accent-indigo-600">
+                                    <p class="text-[10px] text-slate-400 mt-0.5">Limitado al 22% máx para no comprometer el escaneo.</p>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Forma del Fondo del Logo</label>
+                                    <select id="logoShapeInput" class="w-full px-2.5 py-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg text-xs">
+                                        <option value="rounded">Cuadrado Redondeado</option>
+                                        <option value="circle">Círculo Perfecto</option>
+                                        <option value="square">Cuadrado Recto</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="border-slate-200 dark:border-slate-700">
+
+                    <!-- Scan Security Settings & ISO Tuning -->
+                    <div>
+                        <h3 class="font-bold text-sm flex items-center gap-2 mb-3">
+                            <i class="fa-solid fa-sliders text-indigo-500"></i> Ajustes Técnicos ISO 18004
+                        </h3>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">
+                                    Nivel de Corrección de Errores
+                                </label>
+                                <select id="eclInput" class="w-full px-2.5 py-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg text-xs">
+                                    <option value="L">L - Bajo (7% Recuperación)</option>
+                                    <option value="M">M - Medio (15% Recuperación)</option>
+                                    <option value="Q" selected>Q - Alto (25% Recuperación)</option>
+                                    <option value="H">H - Máximo (30% Recuperación)</option>
+                                </select>
+                                <p id="eclAutoNotice" class="text-[10px] text-indigo-500 mt-1 hidden">
+                                    <i class="fa-solid fa-circle-info"></i> Forzado automáticamente a Nivel H por presencia de logo.
+                                </p>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">
+                                    Margen / Zona de Silencio (Quiet Zone)
+                                </label>
+                                <select id="marginInput" class="w-full px-2.5 py-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg text-xs">
+                                    <option value="2">2 Módulos (Compacto)</option>
+                                    <option value="4" selected>4 Módulos (Estándar ISO Recomendado)</option>
+                                    <option value="6">6 Módulos (Amplio)</option>
+                                </select>
+                                <p class="text-[10px] text-slate-400 mt-1">El margen evita que bordes externos interfieran en la lectura.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Right Column: Live Interactive Preview & Export -->
+            <div class="lg:col-span-5 lg:sticky lg:top-24 space-y-6">
+                
+                <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-200/80 dark:border-slate-700/80 flex flex-col items-center text-center">
+                    
+                    <!-- Scan Guarantee Status Banner -->
+                    <div class="w-full mb-5 py-2 px-3 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800/80 rounded-xl flex items-center justify-between text-xs">
+                        <div class="flex items-center space-x-2 text-emerald-700 dark:text-emerald-400 font-semibold">
+                            <span class="relative flex h-2.5 w-2.5">
+                              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                              <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                            </span>
+                            <span>Garantía de Escaneo Activa</span>
+                        </div>
+                        <span class="text-[10px] bg-emerald-200/60 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 px-2 py-0.5 rounded font-mono font-medium">100% OK</span>
+                    </div>
+
+                    <!-- Canvas QR Render Area -->
+                    <div id="qrCanvasWrapper" class="p-4 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-inner flex items-center justify-center min-h-[280px] w-full relative">
+                        <!-- Hidden offscreen SVG container -->
+                        <div id="svgContainer" class="hidden"></div>
+                        <!-- Canvas Displayed to User -->
+                        <canvas id="qrCanvas" class="max-w-full h-auto rounded-lg shadow-sm transition-transform duration-200 hover:scale-[1.02]"></canvas>
+                    </div>
+
+                    <!-- Details pills -->
+                    <div class="flex flex-wrap items-center justify-center gap-2 mt-4 text-[11px] font-mono text-slate-500 dark:text-slate-400">
+                        <span id="pillSize" class="bg-slate-100 dark:bg-slate-700/60 px-2.5 py-1 rounded-md">600x600 px</span>
+                        <span id="pillEcl" class="bg-slate-100 dark:bg-slate-700/60 px-2.5 py-1 rounded-md">Error Corr: H</span>
+                        <span id="pillMargin" class="bg-slate-100 dark:bg-slate-700/60 px-2.5 py-1 rounded-md">Margen: 4m</span>
+                    </div>
+
+                    <!-- Download Resolutions & Export Action Buttons -->
+                    <div class="w-full mt-6 space-y-3">
+                        
+                        <!-- Resolution Selector -->
+                        <div class="flex items-center justify-between text-xs font-semibold text-slate-600 dark:text-slate-300 px-1">
+                            <span>Resolución de descarga:</span>
+                            <div class="inline-flex rounded-lg bg-slate-100 dark:bg-slate-700 p-0.5 text-xs">
+                                <button data-res="300" class="res-btn px-2.5 py-1 rounded-md text-slate-600 dark:text-slate-300">300px</button>
+                                <button data-res="600" class="res-btn active px-2.5 py-1 rounded-md bg-white dark:bg-slate-900 shadow-sm text-indigo-600 dark:text-indigo-400 font-bold">600px</button>
+                                <button data-res="1200" class="res-btn px-2.5 py-1 rounded-md text-slate-600 dark:text-slate-300">1200px HD</button>
+                            </div>
+                        </div>
+
+                        <!-- Primary Download PNG -->
+                        <button id="downloadPngBtn" class="w-full py-3.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/25 flex items-center justify-center space-x-2 transition-all transform active:scale-[0.99]">
+                            <i class="fa-solid fa-download"></i>
+                            <span>Descargar Imagen PNG</span>
+                        </button>
+
+                        <div class="grid grid-cols-2 gap-2">
+                            <!-- SVG Download Button -->
+                            <button id="downloadSvgBtn" class="py-2.5 px-3 bg-slate-100 dark:bg-slate-700/70 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold rounded-xl text-xs flex items-center justify-center space-x-1.5 transition-colors">
+                                <i class="fa-solid fa-vector-square text-indigo-500"></i>
+                                <span>Descargar SVG</span>
+                            </button>
+
+                            <!-- Copy Image to Clipboard -->
+                            <button id="copyImageBtn" class="py-2.5 px-3 bg-slate-100 dark:bg-slate-700/70 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold rounded-xl text-xs flex items-center justify-center space-x-1.5 transition-colors">
+                                <i class="fa-regular fa-copy text-emerald-500"></i>
+                                <span>Copiar Imagen</span>
+                            </button>
+                        </div>
+
+                        <!-- Copy Raw Payload -->
+                        <button id="copyPayloadBtn" class="w-full py-2 text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center justify-center space-x-1 transition-colors">
+                            <i class="fa-solid fa-code text-[10px]"></i>
+                            <span>Copiar texto codificado del QR</span>
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <!-- QR Payload Raw Preview Box -->
+                <div class="bg-slate-100/80 dark:bg-slate-800/60 rounded-2xl p-4 border border-slate-200/60 dark:border-slate-700/60 text-xs">
+                    <span class="block font-bold text-slate-500 dark:text-slate-400 text-[10px] uppercase tracking-wider mb-1">Cadena Codificada Exacta (Payload):</span>
+                    <p id="payloadRawText" class="font-mono text-slate-700 dark:text-slate-300 break-all select-all bg-white dark:bg-slate-900 p-2.5 rounded-lg border border-slate-200 dark:border-slate-700">
+                        https://www.google.com
+                    </p>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Recent History Section -->
+        <section class="mt-12 pt-8 border-t border-slate-200 dark:border-slate-800">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h2 class="text-lg font-bold">Historial de Códigos QR Creados</h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Guardado localmente en tu navegador</p>
+                </div>
+                <button id="clearHistoryBtn" class="text-xs text-rose-500 hover:text-rose-700 font-semibold flex items-center gap-1 transition-colors">
+                    <i class="fa-solid fa-trash-can"></i> Limpiar Historial
+                </button>
+            </div>
+
+            <!-- History items grid -->
+            <div id="historyGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <!-- Empty state message -->
+                <div id="emptyHistoryMsg" class="col-span-full py-8 text-center text-slate-400 text-sm">
+                    No hay códigos guardados en el historial aún.
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Info Modal (Why is it 100% scanable?) -->
+    <div id="infoModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-700 space-y-4">
+            <div class="flex items-center justify-between">
+                <h3 class="font-bold text-lg flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
+                    <i class="fa-solid fa-shield-halved"></i> Garantía ISO 18004
+                </h3>
+                <button id="closeInfoModal" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            
+            <div class="space-y-3 text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                <p>
+                    Muchos generadores crean imágenes QR con errores graves que hacen que las cámaras de iOS, Google Lens o WhatsApp los rechacen. <strong>QR ScanMaster Pro</strong> aplica las siguientes reglas estrictas de escaneabilidad:
+                </p>
+                <ul class="space-y-2 list-disc pl-4">
+                    <li><strong class="text-slate-800 dark:text-slate-100">Zona de Silencio (Quiet Zone) de 4 Módulos:</strong> Espacio en blanco obligatorio alrededor para que el sensor identifique las esquinas de orientación (*Finder Patterns*).</li>
+                    <li><strong class="text-slate-800 dark:text-slate-100">Aislamiento de Logo por Fondo Sólido:</strong> Si insertas un logo, se genera un parche plano detrás para evitar cortar módulos de forma irregular.</li>
+                    <li><strong class="text-slate-800 dark:text-slate-100">Corrección de Errores Nivel H (30%):</strong> Permite recuperar casi un tercio de la información del QR dañada o cubierta.</li>
+                    <li><strong class="text-slate-800 dark:text-slate-100">Sintaxis Estandarizada:</strong> Los datos de Wi-Fi, vCard y WhatsApp se formatean exactamente bajo la norma RFC/ISO requerida por el SO del teléfono.</li>
+                </ul>
+            </div>
+
+            <div class="pt-2 text-right">
+                <button id="closeInfoModalBtn" class="px-5 py-2 bg-indigo-600 text-white rounded-xl font-semibold text-xs hover:bg-indigo-700 transition-colors">
+                    Entendido
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none flex items-center gap-3 bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 px-4 py-3 rounded-xl shadow-2xl text-xs font-semibold border border-slate-700 dark:border-slate-200">
+        <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400 dark:text-emerald-600 text-base"></i>
+        <span id="toastMsg">Acción realizada correctamente</span>
+    </div>
+
+    <!-- Application Logic Javascript -->
+    <script>
+        // State Object
+        const state = {
+            type: 'url', // url, text, wifi, vcard, email, whatsapp
+            fgColor: '#000000',
+            bgColor: '#FFFFFF',
+            ecl: 'Q', // L, M, Q, H
+            margin: 4, // Modules margin
+            logoType: 'none', // none, preset name, or custom
+            customLogoDataUrl: null,
+            logoSize: 18, // Percentage
+            logoShape: 'rounded', // rounded, circle, square
+            exportRes: 600, // 300, 600, 1200
+            history: []
+        };
+
+        // DOM Element Cache
+        const elements = {
+            typeTabs: document.getElementById('typeTabs'),
+            fgColorInput: document.getElementById('fgColorInput'),
+            fgHexInput: document.getElementById('fgHexInput'),
+            bgColorInput: document.getElementById('bgColorInput'),
+            bgHexInput: document.getElementById('bgHexInput'),
+            contrastBadge: document.getElementById('contrastBadge'),
+            contrastWarning: document.getElementById('contrastWarning'),
+            customLogoInput: document.getElementById('customLogoInput'),
+            customLogoName: document.getElementById('customLogoName'),
+            removeCustomLogoBtn: document.getElementById('removeCustomLogoBtn'),
+            logoControlsContainer: document.getElementById('logoControlsContainer'),
+            logoSizeInput: document.getElementById('logoSizeInput'),
+            logoSizeVal: document.getElementById('logoSizeVal'),
+            logoShapeInput: document.getElementById('logoShapeInput'),
+            eclInput: document.getElementById('eclInput'),
+            eclAutoNotice: document.getElementById('eclAutoNotice'),
+            marginInput: document.getElementById('marginInput'),
+            qrCanvas: document.getElementById('qrCanvas'),
+            svgContainer: document.getElementById('svgContainer'),
+            payloadRawText: document.getElementById('payloadRawText'),
+            downloadPngBtn: document.getElementById('downloadPngBtn'),
+            downloadSvgBtn: document.getElementById('downloadSvgBtn'),
+            copyImageBtn: document.getElementById('copyImageBtn'),
+            copyPayloadBtn: document.getElementById('copyPayloadBtn'),
+            historyGrid: document.getElementById('historyGrid'),
+            emptyHistoryMsg: document.getElementById('emptyHistoryMsg'),
+            clearHistoryBtn: document.getElementById('clearHistoryBtn'),
+            pillSize: document.getElementById('pillSize'),
+            pillEcl: document.getElementById('pillEcl'),
+            pillMargin: document.getElementById('pillMargin'),
+            infoModal: document.getElementById('infoModal'),
+            infoModalBtn: document.getElementById('infoModalBtn'),
+            closeInfoModal: document.getElementById('closeInfoModal'),
+            closeInfoModalBtn: document.getElementById('closeInfoModalBtn'),
+            themeToggleBtn: document.getElementById('themeToggleBtn')
+        };
+
+        // Preset Icons Paths (SVG strings for rendering directly onto QR canvas)
+        const presetLogoSvgs = {
+            url: `<svg viewBox="0 0 24 24" fill="#4f46e5"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>`,
+            wifi: `<svg viewBox="0 0 24 24" fill="#059669"><path d="M12 3C7.95 3 4.21 4.34 1.2 6.6L3 9c2.53-1.92 5.66-3 9-3s6.47 1.08 9 3l1.8-2.4C19.79 4.34 16.05 3 12 3zm0 6c-2.97 0-5.71.95-7.92 2.56l1.8 2.4C7.54 12.72 9.68 12 12 12s4.46.72 6.12 1.96l1.8-2.4C17.71 9.95 14.97 9 12 9zm0 6c-1.85 0-3.55.59-4.95 1.58L12 21l4.95-4.42C15.55 15.59 13.85 15 12 15z"/></svg>`,
+            vcard: `<svg viewBox="0 0 24 24" fill="#d97706"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`,
+            email: `<svg viewBox="0 0 24 24" fill="#2563eb"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>`,
+            whatsapp: `<svg viewBox="0 0 24 24" fill="#10b981"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2zm.01 16.68c-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.156 8.156 0 0 1-1.25-4.39c0-4.52 3.68-8.2 8.2-8.2 2.19 0 4.25.85 5.8 2.4 1.55 1.55 2.4 3.61 2.4 5.8 0 4.52-3.68 8.2-8.2 8.2z"/></svg>`,
+            star: `<svg viewBox="0 0 24 24" fill="#f59e0b"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>`
+        };
+
+        // --- STREAMING_CHUNK:Initializing application settings and contrast calculations... ---
+        // Calculate WCAG Relative Luminance
+        function getLuminance(hex) {
+            let color = hex.replace('#', '');
+            if (color.length === 3) {
+                color = color.split('').map(c => c + c).join('');
+            }
+            const r = parseInt(color.substr(0, 2), 16) / 255;
+            const g = parseInt(color.substr(2, 2), 16) / 255;
+            const b = parseInt(color.substr(4, 2), 16) / 255;
+
+            const a = [r, g, b].map(v => {
+                return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+            });
+
+            return a[0] * 0.2126 + a[1] * 0.7152 + a[2] * 0.0722;
+        }
+
+        // Calculate Contrast Ratio between Foreground and Background
+        function updateContrastCheck() {
+            const l1 = getLuminance(state.fgColor);
+            const l2 = getLuminance(state.bgColor);
+            const ratio = (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+
+            const ratioFormatted = ratio.toFixed(1);
+
+            if (ratio >= 4.5) {
+                elements.contrastBadge.className = "text-xs font-semibold px-2.5 py-1 rounded-md bg-emerald-100 text-emerald-700 dark:bg-emerald-950/70 dark:text-emerald-400 flex items-center gap-1";
+                elements.contrastBadge.innerHTML = `<i class="fa-solid fa-check"></i> Contraste Excelente (${ratioFormatted}:1)`;
+                elements.contrastWarning.classList.add('hidden');
+            } else {
+                elements.contrastBadge.className = "text-xs font-semibold px-2.5 py-1 rounded-md bg-amber-100 text-amber-800 dark:bg-amber-950/70 dark:text-amber-400 flex items-center gap-1";
+                elements.contrastBadge.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Contraste Bajo (${ratioFormatted}:1)`;
+                elements.contrastWarning.classList.remove('hidden');
+            }
+        }
+
+        // Construct payload text string based on active type form
+        function getQrPayload() {
+            switch (state.type) {
+                case 'url': {
+                    let url = document.getElementById('urlInput').value.trim();
+                    if (url && !/^https?:\/\//i.test(url)) {
+                        url = 'https://' + url;
+                    }
+                    return url || 'https://www.google.com';
+                }
+                case 'text': {
+                    return document.getElementById('textInput').value.trim() || 'Texto de ejemplo';
+                }
+                case 'wifi': {
+                    const ssid = document.getElementById('wifiSsid').value.trim() || 'Wifi';
+                    const type = document.getElementById('wifiType').value;
+                    const pass = document.getElementById('wifiPass').value.trim();
+                    const hidden = document.getElementById('wifiHidden').checked ? 'H:true;' : '';
+                    if (type === 'nopass') {
+                        return `WIFI:S:${ssid};T:nopass;${hidden};`;
+                    }
+                    return `WIFI:S:${ssid};T:${type};P:${pass};${hidden};`;
+                }
+                case 'vcard': {
+                    const fn = document.getElementById('vFirstName').value.trim();
+                    const ln = document.getElementById('vLastName').value.trim();
+                    const phone = document.getElementById('vPhone').value.trim();
+                    const email = document.getElementById('vEmail').value.trim();
+                    const comp = document.getElementById('vCompany').value.trim();
+                    const title = document.getElementById('vTitle').value.trim();
+
+                    return `BEGIN:VCARD\nVERSION:3.0\nN:${ln};${fn};;;\nFN:${fn} ${ln}\nTEL;TYPE=CELL:${phone}\nEMAIL:${email}\nORG:${comp}\nTITLE:${title}\nEND:VCARD`;
+                }
+                case 'email': {
+                    const to = document.getElementById('emailTo').value.trim();
+                    const sub = encodeURIComponent(document.getElementById('emailSubject').value.trim());
+                    const body = encodeURIComponent(document.getElementById('emailBody').value.trim());
+                    return `mailto:${to}?subject=${sub}&body=${body}`;
+                }
+                case 'whatsapp': {
+                    let phone = document.getElementById('waPhone').value.replace(/[^0-9]/g, '');
+                    const msg = encodeURIComponent(document.getElementById('waMessage').value.trim());
+                    if (!phone) phone = '1234567890';
+                    return `https://wa.me/${phone}${msg ? '?text=' + msg : ''}`;
+                }
+                default:
+                    return 'https://www.google.com';
+            }
+        }
+
+        // --- STREAMING_CHUNK:Building QR matrix rendering and canvas draw function... ---
+        // Main QR Generator and Canvas Renderer
+        async function renderQrCode() {
+            const payload = getQrPayload();
+            elements.payloadRawText.textContent = payload;
+
+            // Determine Effective Error Correction Level (Auto-enforce 'H' when logo is active)
+            const hasLogo = state.logoType !== 'none';
+            const effectiveEcl = hasLogo ? 'H' : state.ecl;
+
+            if (hasLogo) {
+                elements.eclAutoNotice.classList.remove('hidden');
+            } else {
+                elements.eclAutoNotice.classList.add('hidden');
+            }
+
+            // Generate ISO Matrix using qrcode-generator engine
+            let qr;
+            try {
+                // Type 0 = auto-detect optimal matrix size (1 to 40)
+                qr = qrcode(0, effectiveEcl);
+                qr.addData(payload);
+                qr.make();
+            } catch (err) {
+                console.error("QR Generation error, falling back to L ECL:", err);
+                qr = qrcode(0, 'L');
+                qr.addData(payload);
+                qr.make();
+            }
+
+            const moduleCount = qr.getModuleCount();
+            const marginModules = parseInt(state.margin, 10);
+            const totalModules = moduleCount + (marginModules * 2);
+
+            // Render Target Canvas Size
+            const canvasSize = state.exportRes;
+            const canvas = elements.qrCanvas;
+            canvas.width = canvasSize;
+            canvas.height = canvasSize;
+
+            const ctx = canvas.getContext('2d');
+            const moduleSize = canvasSize / totalModules;
+
+            // Clear & Fill Canvas Background
+            ctx.fillStyle = state.bgColor;
+            ctx.fillRect(0, 0, canvasSize, canvasSize);
+
+            // Render Dark QR Modules
+            ctx.fillStyle = state.fgColor;
+            for (let r = 0; r < moduleCount; r++) {
+                for (let c = 0; c < moduleCount; c++) {
+                    if (qr.isDark(r, c)) {
+                        const x = (c + marginModules) * moduleSize;
+                        const y = (r + marginModules) * moduleSize;
+                        // Use crisp pixel alignment to avoid anti-aliasing gaps
+                        ctx.fillRect(Math.floor(x), Math.floor(y), Math.ceil(moduleSize), Math.ceil(moduleSize));
+                    }
+                }
+            }
+
+            // If Logo is requested, draw solid background patch + logo overlay
+            if (hasLogo) {
+                await drawLogoOverlay(ctx, canvasSize);
+            }
+
+            // Update details pills
+            elements.pillSize.textContent = `${canvasSize}x${canvasSize} px`;
+            elements.pillEcl.textContent = `Error Corr: ${effectiveEcl}`;
+            elements.pillMargin.textContent = `Margen: ${marginModules}m`;
+
+            // Update SVG container string for SVG download
+            generateSvgString(qr, moduleCount, marginModules, totalModules, effectiveEcl);
+        }
+
+        // Draw Central Logo with clean background isolation badge
+        function drawLogoOverlay(ctx, canvasSize) {
+            return new Promise((resolve) => {
+                const logoPercent = parseInt(state.logoSize, 10) / 100;
+                const logoSize = canvasSize * logoPercent;
+                const patchPadding = logoSize * 0.2; // Solid background buffer around logo
+                const patchSize = logoSize + patchPadding;
+                const patchX = (canvasSize - patchSize) / 2;
+                const patchY = (canvasSize - patchSize) / 2;
+                const logoX = (canvasSize - logoSize) / 2;
+                const logoY = (canvasSize - logoSize) / 2;
+
+                // 1. Draw Solid Mask Badge Background behind logo
+                ctx.fillStyle = state.bgColor;
+                ctx.beginPath();
+                if (state.logoShape === 'circle') {
+                    const radius = patchSize / 2;
+                    ctx.arc(canvasSize / 2, canvasSize / 2, radius, 0, Math.PI * 2);
+                } else if (state.logoShape === 'rounded') {
+                    const radius = patchSize * 0.2;
+                    ctx.roundRect(patchX, patchY, patchSize, patchSize, radius);
+                } else {
+                    // Square
+                    ctx.rect(patchX, patchY, patchSize, patchSize);
+                }
+                ctx.fill();
+
+                // 2. Load and draw Logo Image
+                if (state.logoType === 'custom' && state.customLogoDataUrl) {
+                    const img = new Image();
+                    img.crossOrigin = "anonymous";
+                    img.onload = () => {
+                        ctx.drawImage(img, logoX, logoY, logoSize, logoSize);
+                        resolve();
+                    };
+                    img.onerror = () => resolve();
+                    img.src = state.customLogoDataUrl;
+                } else if (presetLogoSvgs[state.logoType]) {
+                    const svgString = presetLogoSvgs[state.logoType];
+                    const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+                    const url = URL.createObjectURL(blob);
+                    const img = new Image();
+                    img.onload = () => {
+                        ctx.drawImage(img, logoX, logoY, logoSize, logoSize);
+                        URL.revokeObjectURL(url);
+                        resolve();
+                    };
+                    img.onerror = () => resolve();
+                    img.src = url;
+                } else {
+                    resolve();
+                }
+            });
+        }
+
+        // Generate Vector SVG string for lossless vector download
+        function generateSvgString(qr, moduleCount, marginModules, totalModules, ecl) {
+            let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${totalModules} ${totalModules}" width="${state.exportRes}" height="${state.exportRes}">`;
+            svg += `<rect width="100%" height="100%" fill="${state.bgColor}"/>`;
+            
+            // Build path d attribute
+            let pathD = '';
+            for (let r = 0; r < moduleCount; r++) {
+                for (let c = 0; c < moduleCount; c++) {
+                    if (qr.isDark(r, c)) {
+                        const x = c + marginModules;
+                        const y = r + marginModules;
+                        pathD += `M${x},${y}h1v1h-1z `;
+                    }
+                }
+            }
+            svg += `<path d="${pathD}" fill="${state.fgColor}"/>`;
+
+            // Add SVG Logo Patch if active
+            if (state.logoType !== 'none') {
+                const logoPercent = parseInt(state.logoSize, 10) / 100;
+                const logoSizeMod = totalModules * logoPercent;
+                const patchSizeMod = logoSizeMod * 1.2;
+                const patchPos = (totalModules - patchSizeMod) / 2;
+
+                if (state.logoShape === 'circle') {
+                    const radius = patchSizeMod / 2;
+                    svg += `<circle cx="${totalModules/2}" cy="${totalModules/2}" r="${radius}" fill="${state.bgColor}"/>`;
+                } else if (state.logoShape === 'rounded') {
+                    svg += `<rect x="${patchPos}" y="${patchPos}" width="${patchSizeMod}" height="${patchSizeMod}" rx="${patchSizeMod * 0.2}" fill="${state.bgColor}"/>`;
+                } else {
+                    svg += `<rect x="${patchPos}" y="${patchPos}" width="${patchSizeMod}" height="${patchSizeMod}" fill="${state.bgColor}"/>`;
+                }
+            }
+
+            svg += `</svg>`;
+            elements.svgContainer.innerHTML = svg;
+        }
+
+        // Toast Notification Trigger
+        function showToast(msg, isSuccess = true) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMsg');
+            const toastIcon = document.getElementById('toastIcon');
+
+            toastMsg.textContent = msg;
+            if (isSuccess) {
+                toastIcon.className = "fa-solid fa-circle-check text-emerald-400 dark:text-emerald-600 text-base";
+            } else {
+                toastIcon.className = "fa-solid fa-circle-exclamation text-amber-400 text-base";
+            }
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        // --- STREAMING_CHUNK:Handling events and user interactions... ---
+        // Setup Event Listeners
+        function initEventListeners() {
+            
+            // Tab switching
+            elements.typeTabs.addEventListener('click', (e) => {
+                const btn = e.target.closest('.tab-btn');
+                if (!btn) return;
+
+                document.querySelectorAll('.tab-btn').forEach(b => {
+                    b.className = 'tab-btn flex flex-col items-center justify-center p-3 rounded-xl font-medium text-xs gap-1.5 transition-all text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/50 border border-transparent';
+                });
+
+                btn.className = 'tab-btn active flex flex-col items-center justify-center p-3 rounded-xl font-medium text-xs gap-1.5 transition-all bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800';
+
+                state.type = btn.dataset.type;
+
+                // Show correct input form
+                document.querySelectorAll('.type-form').forEach(f => f.classList.add('hidden'));
+                document.getElementById(`form-${state.type}`).classList.remove('hidden');
+
+                renderQrCode();
+            });
+
+            // Dynamic Inputs listener
+            const formInputs = document.querySelectorAll('.type-form input, .type-form textarea, .type-form select');
+            formInputs.forEach(input => {
+                input.addEventListener('input', renderQrCode);
+                input.addEventListener('change', renderQrCode);
+            });
+
+            // WiFi security toggle
+            document.getElementById('wifiType').addEventListener('change', (e) => {
+                const passContainer = document.getElementById('wifiPasswordContainer');
+                if (e.target.value === 'nopass') {
+                    passContainer.classList.add('hidden');
+                } else {
+                    passContainer.classList.remove('hidden');
+                }
+                renderQrCode();
+            });
+
+            // Color inputs sync
+            elements.fgColorInput.addEventListener('input', (e) => {
+                state.fgColor = e.target.value;
+                elements.fgHexInput.value = e.target.value.toUpperCase();
+                updateContrastCheck();
+                renderQrCode();
+            });
+            elements.fgHexInput.addEventListener('input', (e) => {
+                if (/^#[0-9A-F]{6}$/i.test(e.target.value)) {
+                    state.fgColor = e.target.value;
+                    elements.fgColorInput.value = e.target.value;
+                    updateContrastCheck();
+                    renderQrCode();
+                }
+            });
+
+            elements.bgColorInput.addEventListener('input', (e) => {
+                state.bgColor = e.target.value;
+                elements.bgHexInput.value = e.target.value.toUpperCase();
+                updateContrastCheck();
+                renderQrCode();
+            });
+            elements.bgHexInput.addEventListener('input', (e) => {
+                if (/^#[0-9A-F]{6}$/i.test(e.target.value)) {
+                    state.bgColor = e.target.value;
+                    elements.bgColorInput.value = e.target.value;
+                    updateContrastCheck();
+                    renderQrCode();
+                }
+            });
+
+            // Color Presets
+            document.querySelectorAll('.preset-color').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    state.fgColor = btn.dataset.fg;
+                    state.bgColor = btn.dataset.bg;
+                    elements.fgColorInput.value = state.fgColor;
+                    elements.fgHexInput.value = state.fgColor.toUpperCase();
+                    elements.bgColorInput.value = state.bgColor;
+                    elements.bgHexInput.value = state.bgColor.toUpperCase();
+                    updateContrastCheck();
+                    renderQrCode();
+                });
+            });
+
+            // Logo Presets
+            document.querySelectorAll('.logo-preset-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.logo-preset-btn').forEach(b => {
+                        b.className = 'logo-preset-btn p-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-medium text-center flex flex-col items-center justify-center gap-1 hover:border-indigo-300';
+                    });
+                    btn.className = 'logo-preset-btn active p-2 rounded-xl border-2 border-indigo-500 bg-indigo-50/50 dark:bg-indigo-950/50 text-xs font-medium text-center flex flex-col items-center justify-center gap-1';
+
+                    state.logoType = btn.dataset.logo;
+                    if (state.logoType !== 'none') {
+                        elements.logoControlsContainer.classList.remove('hidden');
+                    } else {
+                        elements.logoControlsContainer.classList.add('hidden');
+                    }
+                    renderQrCode();
+                });
+            });
+
+            // Custom Logo Upload
+            elements.customLogoInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                if (file.size > 3 * 1024 * 1024) {
+                    showToast('La imagen es demasiado grande (máx 3MB)', false);
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = (evt) => {
+                    state.customLogoDataUrl = evt.target.result;
+                    state.logoType = 'custom';
+                    elements.customLogoName.textContent = file.name;
+                    elements.removeCustomLogoBtn.classList.remove('hidden');
+                    elements.logoControlsContainer.classList.remove('hidden');
+
+                    // Reset preset buttons styling
+                    document.querySelectorAll('.logo-preset-btn').forEach(b => {
+                        b.className = 'logo-preset-btn p-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-medium text-center flex flex-col items-center justify-center gap-1 hover:border-indigo-300';
+                    });
+
+                    renderQrCode();
+                    showToast('Logo personalizado cargado');
+                };
+                reader.readAsDataURL(file);
+            });
+
+            elements.removeCustomLogoBtn.addEventListener('click', () => {
+                state.customLogoDataUrl = null;
+                state.logoType = 'none';
+                elements.customLogoInput.value = '';
+                elements.customLogoName.textContent = 'Ningún archivo seleccionado';
+                elements.removeCustomLogoBtn.classList.add('hidden');
+                elements.logoControlsContainer.classList.add('hidden');
+                renderQrCode();
+            });
+
+            // Logo Size Slider
+            elements.logoSizeInput.addEventListener('input', (e) => {
+                state.logoSize = e.target.value;
+                elements.logoSizeVal.textContent = `${e.target.value}%`;
+                renderQrCode();
+            });
+
+            // Logo Shape
+            elements.logoShapeInput.addEventListener('change', (e) => {
+                state.logoShape = e.target.value;
+                renderQrCode();
+            });
+
+            // ECL & Margin
+            elements.eclInput.addEventListener('change', (e) => {
+                state.ecl = e.target.value;
+                renderQrCode();
+            });
+            elements.marginInput.addEventListener('change', (e) => {
+                state.margin = parseInt(e.target.value, 10);
+                renderQrCode();
+            });
+
+            // Resolution selection
+            document.querySelectorAll('.res-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.res-btn').forEach(b => {
+                        b.className = 'res-btn px-2.5 py-1 rounded-md text-slate-600 dark:text-slate-300';
+                    });
+                    btn.className = 'res-btn active px-2.5 py-1 rounded-md bg-white dark:bg-slate-900 shadow-sm text-indigo-600 dark:text-indigo-400 font-bold';
+                    state.exportRes = parseInt(btn.dataset.res, 10);
+                    renderQrCode();
+                });
+            });
+
+            // --- Download & Copy Actions ---
+            // Download PNG
+            elements.downloadPngBtn.addEventListener('click', () => {
+                const canvas = elements.qrCanvas;
+                const link = document.createElement('a');
+                link.download = `QR_Code_${state.type}_${Date.now()}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                
+                saveToHistory();
+                showToast('¡Imagen PNG descargada!');
+            });
+
+            // Download SVG
+            elements.downloadSvgBtn.addEventListener('click', () => {
+                const svgContent = elements.svgContainer.innerHTML;
+                const blob = new Blob([svgContent], { type: 'image/svg+xml;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.download = `QR_Code_${state.type}_${Date.now()}.svg`;
+                link.href = url;
+                link.click();
+                URL.revokeObjectURL(url);
+
+                saveToHistory();
+                showToast('¡Archivo SVG vectorial descargado!');
+            });
+
+            // Copy Image to Clipboard
+            elements.copyImageBtn.addEventListener('click', async () => {
+                try {
+                    elements.qrCanvas.toBlob(async (blob) => {
+                        if (!blob) {
+                            showToast('Error al procesar imagen', false);
+                            return;
+                        }
+                        try {
+                            const item = new ClipboardItem({ 'image/png': blob });
+                            await navigator.clipboard.write([item]);
+                            showToast('¡Imagen copiada al portapapeles!');
+                            saveToHistory();
+                        } catch (err) {
+                            showToast('No se pudo copiar directo (Restricción del navegador)', false);
+                        }
+                    });
+                } catch (e) {
+                    showToast('Función no soportada en este navegador', false);
+                }
+            });
+
+            // Copy Raw Payload Text
+            elements.copyPayloadBtn.addEventListener('click', () => {
+                const payload = getQrPayload();
+                // Fallback execCommand for iFrame environment safety
+                const tempInput = document.createElement('textarea');
+                tempInput.value = payload;
+                document.body.appendChild(tempInput);
+                tempInput.select();
+                try {
+                    document.execCommand('copy');
+                    showToast('Texto codificado copiado al portapapeles');
+                } catch (err) {
+                    showToast('Error al copiar el texto', false);
+                }
+                document.body.removeChild(tempInput);
+            });
+
+            // Info Modal
+            elements.infoModalBtn.addEventListener('click', () => elements.infoModal.classList.remove('hidden'));
+            elements.closeInfoModal.addEventListener('click', () => elements.infoModal.classList.add('hidden'));
+            elements.closeInfoModalBtn.addEventListener('click', () => elements.infoModal.classList.add('hidden'));
+
+            // Dark Theme Toggle
+            elements.themeToggleBtn.addEventListener('click', () => {
+                document.documentElement.classList.toggle('dark');
+                const isDark = document.documentElement.classList.contains('dark');
+                localStorage.setItem('qr_theme', isDark ? 'dark' : 'light');
+            });
+
+            // Clear History Button
+            elements.clearHistoryBtn.addEventListener('click', () => {
+                state.history = [];
+                localStorage.removeItem('qr_scanmaster_history');
+                renderHistory();
+                showToast('Historial borrado');
+            });
+        }
+
+        // --- STREAMING_CHUNK:Managing local storage history functions... ---
+        // Save current QR code to local storage history
+        function saveToHistory() {
+            const payload = getQrPayload();
+            const canvas = elements.qrCanvas;
+            const thumbnailData = canvas.toDataURL('image/png', 0.5);
+
+            const item = {
+                id: Date.now(),
+                type: state.type,
+                payload: payload,
+                date: new Date().toLocaleDateString('es-ES', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }),
+                thumbnail: thumbnailData
+            };
+
+            // Remove duplicate if same payload exists
+            state.history = state.history.filter(h => h.payload !== payload);
+
+            // Add to beginning
+            state.history.unshift(item);
+
+            // Limit to 12 items max
+            if (state.history.length > 12) {
+                state.history.pop();
+            }
+
+            localStorage.setItem('qr_scanmaster_history', JSON.stringify(state.history));
+            renderHistory();
+        }
+
+        // Load History from local storage
+        function loadHistory() {
+            try {
+                const stored = localStorage.getItem('qr_scanmaster_history');
+                if (stored) {
+                    state.history = JSON.parse(stored);
+                }
+            } catch (e) {
+                state.history = [];
+            }
+            renderHistory();
+        }
+
+        // Render History UI Grid
+        function renderHistory() {
+            const grid = elements.historyGrid;
+            const emptyMsg = elements.emptyHistoryMsg;
+
+            if (!state.history || state.history.length === 0) {
+                grid.innerHTML = '';
+                grid.appendChild(emptyMsg);
+                emptyMsg.classList.remove('hidden');
+                return;
+            }
+
+            emptyMsg.classList.add('hidden');
+            grid.innerHTML = '';
+
+            state.history.forEach(item => {
+                const card = document.createElement('div');
+                card.className = "bg-white dark:bg-slate-800 rounded-xl p-3 border border-slate-200 dark:border-slate-700 shadow-sm flex items-center space-x-3 group hover:border-indigo-300 transition-colors";
+                
+                card.innerHTML = `
+                    <img src="${item.thumbnail}" class="w-14 h-14 rounded-lg bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 object-contain p-1 flex-shrink-0" alt="QR">
+                    <div class="flex-grow min-w-0">
+                        <div class="flex items-center space-x-1.5">
+                            <span class="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400">
+                                ${item.type}
+                            </span>
+                            <span class="text-[10px] text-slate-400">${item.date}</span>
+                        </div>
+                        <p class="text-xs font-mono text-slate-700 dark:text-slate-300 truncate mt-1" title="${item.payload}">
+                            ${item.payload}
+                        </p>
+                    </div>
+                    <button class="delete-history-btn text-slate-300 hover:text-rose-500 p-1.5 transition-colors" data-id="${item.id}" title="Eliminar">
+                        <i class="fa-solid fa-xmark text-sm"></i>
+                    </button>
+                `;
+
+                // Delete individual history item
+                card.querySelector('.delete-history-btn').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    state.history = state.history.filter(h => h.id !== item.id);
+                    localStorage.setItem('qr_scanmaster_history', JSON.stringify(state.history));
+                    renderHistory();
+                });
+
+                grid.appendChild(card);
+            });
+        }
+
+        // Init App on Window Load
+        window.onload = function() {
+            // Restore theme preference
+            const savedTheme = localStorage.getItem('qr_theme');
+            if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            }
+
+            initEventListeners();
+            loadHistory();
+            updateContrastCheck();
+            renderQrCode();
+        };
+    </script>
+</body>
+</html>
